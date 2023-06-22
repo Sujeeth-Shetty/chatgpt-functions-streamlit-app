@@ -13,7 +13,7 @@ GPT_MODEL = "gpt-3.5-turbo-0613"
 
 def get_openai_api_key():
     # Connect to the AWS Systems Manager service
-    ssm = boto3.client('ssm', aws_access_key_id=st.secrets["aws_access"],aws_secret_access_key = st.secrets["aws_secret"])
+    ssm = boto3.client('ssm', aws_access_key_id=st.secrets["aws_access"],aws_secret_access_key = st.secrets["aws_secret"], region_name="us-east-1")
     # Retrieve the OpenAI API key from AWS Parameter Store
     response = ssm.get_parameter(
         Name='openAI_api_key',
