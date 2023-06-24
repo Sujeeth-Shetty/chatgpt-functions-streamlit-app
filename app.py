@@ -157,7 +157,7 @@ messages = []
 messages.append({"role": "system", "content": "Answer user questions by generating SQL queries against the itineraries database."})
 
 st.set_page_config(layout="wide")
-st.title('Expedia flight data - Non Stop flights only')
+st.title('LLM based Flight Data App')
 st.subheader('Send a Message')
 user_message = st.text_input(label="Input a Message")
 
