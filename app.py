@@ -119,53 +119,53 @@ def execute_function_call(message):
 
 #con = duckdb.connect(database='itineraries.duckdb')
 
-openai.api_key = get_openai_api_key()
-start_timer = timer()
-conn = duckdb.connect(database='itineraries.duckdb', read_only=True)
-database_schema_dict = get_database_info(conn)
-database_schema_string = "\n".join(
-    [
-        f"Table: {table['table_name']}\nColumns: {', '.join(table['column_names'])}"
-        for table in database_schema_dict
-    ]
-)
+if __name__ == "__main__" :
+    openai.api_key = get_openai_api_key()
+    conn = duckdb.connect(database='itineraries.duckdb', read_only=True)
+    database_schema_dict = get_database_info(conn)
+    database_schema_string = "\n".join(
+        [
+            f"Table: {table['table_name']}\nColumns: {', '.join(table['column_names'])}"
+            for table in database_schema_dict
+        ]
+    )
 
 
-functions = [
-    {
-        "name": "ask_database",
-        "description": "Use this function to answer user questions about flight itineraries. Output should be a fully formed SQL query.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "query": {
-                    "type": "string",
-                    "description": f"""
-                            SQL query extracting info to answer the user's question.
-                            SQL should be written using this database schema:
-                            {database_schema_string}
-                            The query should be returned in plain text, not in JSON.
-                            """,
-                }
+    functions = [
+        {
+            "name": "ask_database",
+            "description": "Use this function to answer user questions about flight itineraries. Output should be a fully formed SQL query.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": f"""
+                                SQL query extracting info to answer the user's question.
+                                SQL should be written using this database schema:
+                                {database_schema_string}
+                                The query should be returned in plain text, not in JSON.
+                                """,
+                    }
+                },
+                "required": ["query"],
             },
-            "required": ["query"],
-        },
-    }
-]
+        }
+    ]
 
-messages = []
-messages.append({"role": "system", "content": "Answer user questions by generating SQL queries against the itineraries database."})
+    messages = []
+    messages.append({"role": "system", "content": "Answer user questions by generating SQL queries against the itineraries database."})
 
-st.set_page_config(layout="wide")
-st.title('LLM based Flight Data App')
-st.subheader('Send a Message')
-user_message = st.text_input(label="Input a Message")
+    st.set_page_config(layout="wide")
+    st.title('LLM based Flight Data App')
+    st.subheader('Send a Message')
+    user_message = st.text_input(label="Input a Message")
 
-messages.append({"role": "user", "content": user_message})
-chat_response = chat_completion_request(messages, functions)
-assistant_message = chat_response.json()["choices"][0]["message"]
-messages.append(assistant_message)
-if assistant_message.get("function_call"):
-    results = execute_function_call(assistant_message)
-    messages.append({"role": "function", "name": assistant_message["function_call"]["name"], "content": results})
-st.write(pretty_print_conversation(messages))
+    messages.append({"role": "user", "content": user_message})
+    chat_response = chat_completion_request(messages, functions)
+    assistant_message = chat_response.json()["choices"][0]["message"]
+    messages.append(assistant_message)
+    if assistant_message.get("function_call"):
+        results = execute_function_call(assistant_message)
+        messages.append({"role": "function", "name": assistant_message["function_call"]["name"], "content": results})
+    st.write(pretty_print_conversation(messages))
